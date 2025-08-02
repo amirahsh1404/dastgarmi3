@@ -5,9 +5,10 @@ type Props = {
   setTitle: (title: string) => void;
   onExport: () => void;
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  saveToServer: () => void;
 };
 
-const Header: React.FC<Props> = ({ title, setTitle, onExport, onImport }) => {
+const Header: React.FC<Props> = ({ title, setTitle, onExport, onImport, saveToServer }) => {
   return (
       <header className="header">
         <input
@@ -21,6 +22,8 @@ const Header: React.FC<Props> = ({ title, setTitle, onExport, onImport }) => {
           Import
           <input type="file" accept=".json" onChange={onImport} hidden />
         </label>
+          <button onClick={saveToServer}>ذخیره در حساب</button>
+
       </header>
   );
 };

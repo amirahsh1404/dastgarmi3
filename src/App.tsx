@@ -6,6 +6,7 @@ import ShapeCounter from './components/ShapeCounter';
 import { ShapeData, ShapeType } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import './styles.css';
+import Login from "./components/Login";
 
 type ToolType = ShapeType | 'eraser';
 
@@ -13,6 +14,7 @@ const App: React.FC = () => {
     const [title, setTitle] = useState('');
     const [shapes, setShapes] = useState<ShapeData[]>([]);
     const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
+    const [userId, setUserId] = useState<number | null>(null);
 
     const addShape = (x: number, y: number) => {
         if (!selectedTool || selectedTool === 'eraser') return;
@@ -58,6 +60,28 @@ const App: React.FC = () => {
         reader.readAsText(file);
     };
 
+    const saveToServer = async () => {
+        if (!userId) return;
+
+        const res = await fetch('http://localhost:4000/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, title, shapes }),
+        });
+
+        if (res.ok) alert('نقاشی ذخیره شد.');
+        else alert('ذخیره با خطا مواجه شد.');
+    };
+
+
+    if (userId === null) {
+        return <Login onLogin={(uid, t, s) => {
+            setUserId(uid);
+            setTitle(t);
+            setShapes(s);
+        }} />;
+    }
+
     return (
         <div className="app">
             <Header
@@ -65,6 +89,7 @@ const App: React.FC = () => {
                 setTitle={setTitle}
                 onExport={exportToJson}
                 onImport={importFromJson}
+                saveToServer={saveToServer}
             />
             <div className="main">
                 <Sidebar selectTool={setSelectedTool} activeTool={selectedTool} />
