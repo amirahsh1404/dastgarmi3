@@ -123,10 +123,10 @@ paintings: هر کاربر فقط یک نقاشی دارد
 روی سرور، اگر userId وجود داشت، نقاشی بروزرسانی می‌شود.
 
 ## تصویری از عملکرد در صفحه ورود
-  <img src="screenshot.png" alt="دستگرمی">
+  <img src="screenshot1.png" alt="دستگرمی">
 
   ## تصویری از عملکرد در صفحه نقاشی
-  <img src="screenshot.png" alt="دستگرمی">
+  <img src="screenshot2.png" alt="دستگرمی">
 
 
 
