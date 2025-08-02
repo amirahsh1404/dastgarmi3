@@ -1,39 +1,15 @@
-# تمرین دستگرمی 2
+# تمرین دستگرمی 3
 
-یک پروژه ساده و کاربردی برای نقاشی با اشکال هندسی (دایره، مربع، مثلث) در محیط React + TypeScript، با قابلیت Import/Export به JSON، شمارش اشکال، و ابزار پاک‌کن.
+در این پروژه نسخه‌ی پیشرفته‌تری از نقاشی با اشکال هندسی (دایره، مربع، مثلث) در محیط React + TypeScript ساخته شده که علاوه بر قابلیت‌های قبلی (اضافه/حذف اشکال، Export/Import فایل JSON، شمارش اشکال)، حالا امکان ورود با نام کاربری و رمز عبور و همچنین ذخیره‌سازی نقاشی‌ها در دیتابیس سرور نیز فراهم شده است.
+
+کاربر با وارد کردن اطلاعات خود وارد سیستم می‌شود (یا اگر کاربر جدید است، ثبت‌نام می‌شود) و نقاشی قبلی خود را مشاهده می‌کند. با ذخیره‌ی نقاشی، تمام اطلاعات در دیتابیس سمت سرور نگهداری می‌شوند.
+
 
 در این پروژه یک تخته نقاشی ساده به سه شکل پایه دایره، مربع و مثلث ساختیم. با انتخاب هر شکل و سپس یک بار کلیک بر روی برد نقاشی شکل مورد نظر در آنجا قرار می‌گیرد. در صورتی که بخواهیم شکلی را پاک کنیم ابتدا شکل پاک کن را در سمت راست انتخاب کرده و سپس با دوبار کلیک بر روی یکی از اشکال مربع، دایره یا مثلث آن‌ها را پاک می‌کنیم.
 
 همچنین امکان ذخیره برد نقاشی شده به صورت یک فایل JSON نیز وجود دارد. این کار با استفاده از دکمه export صورت می‌گیرد. برای مشاهده نقاشی‌های پیشین هم می‌توان از دکمه ایمپورت استفاده کرد و با انتخاب یکی از فایل‌های ذخیره شده آن را در برد بازیابی کرد.
 
-## ساختار پروژه:
-
-src/
-
-├── components/
-
-│   ├── Header.tsx         # نوار بالایی شامل عنوان، دکمه‌های Import و Export
-
-│   ├── Sidebar.tsx        # نوار ابزار سمت راست شامل اشکال و ابزار پاک‌کن
-
-│   ├── Canvas.tsx         # بوم نقاشی که شکل‌ها روی آن ترسیم می‌شوند
-
-│   ├── Shape.tsx          # نمایش هر شکل (دایره، مربع، مثلث)
-
-│   └── ShapeCounter.tsx   # نمایش تعداد هر شکل در پایین صفحه
-
-│
-
-├── types/
-
-│   └── index.ts           # تعریف نوع داده‌ها (شکل‌ها، موقعیت، نوع ابزار)
-
-│
-├── App.tsx                # مدیریت اصلی وضعیت ابزار، شکل‌ها و ارتباط بین اجزا
-
-├── index.tsx              # نقطه ورود اپلیکیشن
-
-└── styles.css             # استایل کلی پروژه
+جهت مشاهده توضیحات بیشتر درمورد ساختار اولیه پروژه و توضیحات فرانت پروژه به لینک ریپوی تمرین قبل مراجعه فرمایید.
 
 ## نحوه اجرا
 ```
@@ -43,354 +19,114 @@ npm install
 npm run dev
 ```
 
-## توضیح کدهای هر بخش
-### 1. فایل APP.tsx
-وطیفۀ اصلی این کلاس نگهداری وضعیت اشکال، ابزار فعال، و عنوان نقاشی است. درواقع مدیریت ایونت‌ها و اتفاقاتی که در سرتاسر برنامه رخ می‌دهد ابتدا در این کلاس مدیریت و سپس به بخش‌های لازم دستورات ارسال می‌شود. متدهای لازم مانند اضافه کردن شکل، پاک کردن یا کارهای مربوط به جیسون در اینجا ابتدا مدیریت می‌شوند.
+```
+cd src/server
+node index.js
+```
 
-- ارسال props به کامپوننت‌ها برای تعامل بین آن‌ها
-- پیاده‌سازی منطق Import و Export فایل JSON
+## عملکرد صفحه Login
+فرم ساده ورود شامل نام کاربری و رمز عبور
+
+درخواست POST به آدرس /api/login
+
+اگر کاربر از قبل وجود داشته باشد و رمز درست باشد → نقاشی قبلی بارگذاری می‌شود.
+
+اگر کاربر جدید باشد ثبت‌نام می‌شود و یک برد خالی نقاشی دریافت می‌کند.
+
+پس از ورود موفق، کامپوننت اصلی App.tsx اطلاعات کاربر (userId، title، shapes) را دریافت کرده و وضعیت را تنظیم می‌کند.
+
+دیزاین این صفحه نیز در Login.css قرار دارد.
 
 ```
 import React, { useState } from 'react';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import Canvas from './components/Canvas';
-import ShapeCounter from './components/ShapeCounter';
-import { ShapeData, ShapeType } from './types';
-import { v4 as uuidv4 } from 'uuid';
-import './styles.css';
+import './Login.css';
 
-type ToolType = ShapeType | 'eraser';
+interface Props {
+    onLogin: (userId: number, title: string, shapes: any[]) => void;
+}
 
-const App: React.FC = () => {
-    const [title, setTitle] = useState('');
-    const [shapes, setShapes] = useState<ShapeData[]>([]);
-    const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
+const Login: React.FC<Props> = ({ onLogin }) => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const addShape = (x: number, y: number) => {
-        if (!selectedTool || selectedTool === 'eraser') return;
-        const newShape: ShapeData = {
-            id: uuidv4(),
-            type: selectedTool,
-            x,
-            y,
-        };
-        setShapes(prev => [...prev, newShape]);
-    };
-
-    const removeShape = (id: string) => {
-        setShapes(prev => prev.filter(shape => shape.id !== id));
-    };
-
-    const exportToJson = () => {
-        const data = JSON.stringify({ title, shapes }, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${title || 'painting'}.json`;
-        link.click();
-    };
-
-    const importFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            try {
-                const data = JSON.parse(reader.result as string);
-                if (data.shapes && Array.isArray(data.shapes)) {
-                    setTitle(data.title || '');
-                    setShapes(data.shapes);
-                }
-            } catch {
-                alert( 'فایل JSON نامعتبر است.');
-            }
-        };
-        reader.readAsText(file);
+    const handleLogin = async () => {
+        const res = await fetch('http://localhost:4000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            onLogin(data.userId, data.title, JSON.parse(data.shapes));
+        } else {
+            setError(data.message || 'خطا در ورود');
+        }
     };
 
     return (
-        <div className="app">
-            <Header
-                title={title}
-                setTitle={setTitle}
-                onExport={exportToJson}
-                onImport={importFromJson}
-            />
-            <div className="main">
-                <Sidebar selectTool={setSelectedTool} activeTool={selectedTool} />
-                <Canvas
-                    shapes={shapes}
-                    addShape={addShape}
-                    removeShape={removeShape}
-                    selectedTool={selectedTool}
+        <div className="login-container">
+            <div className="login-box">
+                <h2>🎨 ورود به نقاشی</h2>
+                <input
+                    type="text"
+                    placeholder="نام کاربری"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
                 />
+                <input
+                    type="password"
+                    placeholder="رمز عبور"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                />
+                <button onClick={handleLogin}>ورود / ثبت‌نام</button>
+                {error && <div className="error-msg">{error}</div>}
             </div>
-            <ShapeCounter shapes={shapes} />
         </div>
     );
 };
 
-export default App;
+export default Login;
 
 ```
 
-### 2. فایل‌های پوشه component
-در این قسمت کامپوننت‌های مورد نیاز طراحی و پیاده سازی شده اند.
-- در Canvas: کلیک روی بوم شکل را در محل کلیک اضافه می‌کند و در حالت پاک‌کن، دابل‌کلیک باعث حذف شکل می‌شود.
-- در Header: ورودی عنوان نقاشی، دکمه برای Import فایل JSON (ورود نقاشی) و دکمه برای Export نقاشی فعلی به فایل JSON طراحی شده است.
-- در Sidebar: ابزار انتخاب اشکال: دایره، مربع، مثلث، ابزار پاک‌کن: با انتخاب آن، می‌توان با دابل‌کلیک اشکال را حذف کرد و همچنین ابزاری که در آن لحظه فعال است فعال مشخص می‌شود (با کلاس .active)
-- در Shape:نمایش شکل در موقعیت مشخص با کلاس CSS متناسب با نوع آن
-- در ShapeCounter: شمارش تعداد اشکال روی بوم (دایره، مربع، مثلث)
- مجموعه کدهای این کلاس‌ها به صورت:
-```
-import React from 'react';
-import Shape from './Shape';
-import { ShapeData, ShapeType } from '../types';
+## سمت سرور - Express + SQLite
 
-type Props = {
-  shapes: ShapeData[];
-  addShape: (x: number, y: number) => void;
-  removeShape: (id: string) => void;
-  selectedTool: ShapeType | 'eraser' | null;
-};
+استفاده از Express.js به‌عنوان REST API
 
-const Canvas: React.FC<Props> = ({ shapes, addShape, removeShape, selectedTool }) => {
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    addShape(e.clientX - rect.left, e.clientY - rect.top);
-  };
+استفاده از SQLite برای ذخیره اطلاعات کاربران و نقاشی‌ها
 
-  return (
-      <div className="canvas" onClick={handleClick}>
-        {shapes.map((shape) => (
-            <Shape
-                key={shape.id}
-                shape={shape}
-                onDoubleClick={() => {
-                  if (selectedTool === 'eraser') {
-                    removeShape(shape.id);
-                  }
-                }}
-            />
-        ))}
-      </div>
-  );
-};
 
-export default Canvas;
+POST /api/login: برای ورود یا ثبت‌نام
 
-import React from 'react';
+POST /api/save: ذخیره نقاشی کاربر
 
-type Props = {
-  title: string;
-  setTitle: (title: string) => void;
-  onExport: () => void;
-  onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
+ساختار دیتابیس:
 
-const Header: React.FC<Props> = ({ title, setTitle, onExport, onImport }) => {
-  return (
-      <header className="header">
-        <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Painting Title"
-        />
-        <button onClick={onExport}>Export</button>
-        <label className="import-btn">
-          Import
-          <input type="file" accept=".json" onChange={onImport} hidden />
-        </label>
-      </header>
-  );
-};
+users: نگهداری نام کاربری و رمز
 
-export default Header;
+paintings: هر کاربر فقط یک نقاشی دارد
 
-import React from 'react';
-import { ShapeData } from '../types';
+## تعامل Frontend با Backend
+کاربر فرم ورود را پر می‌کند.
 
-const Shape: React.FC<{ shape: ShapeData; onDoubleClick: () => void }> = ({ shape, onDoubleClick }) => {
-  return (
-      <div
-          className={`shape ${shape.type}`}
-          style={{ left: shape.x, top: shape.y }}
-          onDoubleClick={onDoubleClick}
-      />
-  );
-};
+درخواست POST به /api/login ارسال می شود.
 
-export default Shape;
+اگر موفق بود، اطلاعات کاربر و نقاشی در پاسخ باز می‌گردد.
 
-import React from 'react';
-import { ShapeData } from '../types';
 
-const ShapeCounter: React.FC<{ shapes: ShapeData[] }> = ({ shapes }) => {
-    const counts = shapes.reduce<Record<string, number>>((acc, shape) => {
-        acc[shape.type] = (acc[shape.type] || 0) + 1;
-        return acc;
-    }, {});
+پس از نقاشی، کاربر روی ذخیره در حساب کلیک می کند.
 
-    return (
-        <footer className="counter">
-            <div><span className="circle">دایره:</span> {counts.circle || 0}</div>
-            <div><span className="square">مربع:</span> {counts.square || 0}</div>
-            <div><span className="triangle">مثلث:</span> {counts.triangle || 0}</div>
-        </footer>
-    );
-};
+اطلاعات با POST به /api/save ارسال می‌شود.
 
-export default ShapeCounter;
+روی سرور، اگر userId وجود داشت، نقاشی بروزرسانی می‌شود.
 
-import React from 'react';
-import { ShapeType } from '../types';
-
-const tools: (ShapeType | 'eraser')[] = ['circle', 'square', 'triangle', 'eraser'];
-
-type Props = {
-    selectTool: (tool: ShapeType | 'eraser') => void;
-    activeTool: ShapeType | 'eraser' | null;
-};
-
-const Sidebar: React.FC<Props> = ({ selectTool, activeTool }) => {
-    return (
-        <aside className="sidebar">
-            <div>Tools</div>
-            {tools.map((tool) => (
-                <button
-                    key={tool}
-                    onClick={() => selectTool(tool)}
-                    className={`tool ${tool} ${activeTool === tool ? 'active' : ''}`}
-                    title={tool === 'eraser' ? 'پاک‌کن' : tool}
-                >
-                    {tool === 'eraser' ? '🧹' : ''}
-                </button>
-            ))}
-        </aside>
-    );
-};
-
-export default Sidebar;
-
-```
-
-### 3. فایل‌ style.css
-در این فایل هم که دیزاین‌های لازم برای اشکال، دکمه‌ها و موارد دیگر قرار گرفته است:
-```
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-.header {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-}
-.sidebar {
-  width: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  border-right: 5px solid #b66b6b;
-}
-.main {
-  display: flex;
-  flex: 1;
-}
-.canvas {
-  flex: 1;
-  position: relative;
-  border: 1px solid black;
-}
-.shape {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-}
-.triangle {
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 30px solid pink;
-}
-.circle {
-  border-radius: 50%;
-  background: lightblue;
-}
-.square {
-  background: lightgreen;
-}
-
-.tool {
-  width: 40px;
-  height: 40px;
-  border: 1px solid black;
-}
-.tool.triangle {
-  background: #ffffff;
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 30px solid pink;
-}
-.tool.eraser {
-  font-size: 20px;
-  background: white;
-  border: none;
-}
-
-.counter {
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  border-top: 1px solid #ccc;
-}
-.import-btn input {
-  display: none;
-}
-
-button {
-  padding: 6px 12px;
-  margin: 8px;
-  border: none;
-  border-radius: 6px;
-  background-color: #4f46e5;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-label {
-  padding: 6px 12px;
-  margin: 8px;
-  border: none;
-  border-radius: 6px;
-  background-color: #4f46e5;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  background-color: #4338ca;
-}
-
-input {
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-```
-
-## تصویری از عملکرد
+## تصویری از عملکرد در صفحه ورود
   <img src="screenshot.png" alt="دستگرمی">
+
+  ## تصویری از عملکرد در صفحه نقاشی
+  <img src="screenshot.png" alt="دستگرمی">
+
 
 
